@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: s3flex
+  namespace: s3flex
+spec:
+  template:
+    metadata:
+      name: s3flex
+      namespace: s3flex
+      labels:
+        app: s3flex
+    spec:
+      hostIPC: true
+      containers:
+        - image: kavatech/s3flex:v0.0.2
+          imagePullPolicy: Always
+          name: s3flex
+          securityContext:
+            capabilities:
+              add:
+              - SYS_ADMIN
+            privileged: true
+          volumeMounts:
+            - mountPath: /flexmnt
+              name: flexvolume-mount
+            - mountPath: /hostPods
+              name: host-pods
+              mountPropagation: Bidirectional
+      volumes:
+        - name: flexvolume-mount
+          hostPath:
+            path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec/
+        - name: host-pods
+          hostPath:
+            path: /var/lib/kubelet/pods
